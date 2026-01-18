@@ -3,7 +3,7 @@ const token = localStorage.getItem("token");
 // Muat daftar reviewer ke dropdown
 async function loadReviewersToDropdown() {
   try {
-    const res = await fetch("http://localhost:3000/api/admin/reviewer", {
+    const res = await fetch("https://orange-press-be.vercel.app/api/admin/reviewer", {
       headers: { Authorization: `Bearer ${token}` },
     });
     const result = await res.json();
@@ -43,7 +43,7 @@ async function loadReviewerDetail(profileId) {
 
   try {
     const res = await fetch(
-      `http://localhost:3000/api/admin/reviewer/${profileId}`,
+      `https://orange-press-be.vercel.app/api/admin/reviewer/${profileId}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -173,7 +173,7 @@ document
     }
 
     try {
-      const res = await fetch("http://localhost:3000/api/admin/reviewer", {
+      const res = await fetch("https://orange-press-be.vercel.app/api/admin/reviewer", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

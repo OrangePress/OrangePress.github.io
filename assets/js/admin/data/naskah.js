@@ -26,7 +26,7 @@ function authFetch(url, options = {}) {
 // Muat daftar naskah
 async function loadManuscripts() {
   try {
-    const res = await authFetch("http://localhost:3000/api/admin/manuscripts");
+    const res = await authFetch("https://orange-press-be.vercel.app/api/admin/manuscripts");
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const manuscripts = await res.json();
@@ -45,7 +45,7 @@ async function loadManuscripts() {
 async function loadManuscriptDetail(id) {
   try {
     const res = await authFetch(
-      `http://localhost:3000/api/admin/detail/manuscripts/${id}`,
+      `https://orange-press-be.vercel.app/api/admin/detail/manuscripts/${id}`,
     );
     const result = await res.json();
 

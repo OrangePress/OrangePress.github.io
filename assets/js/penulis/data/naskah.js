@@ -26,7 +26,7 @@ async function loadAuthorManuscripts() {
   try {
     loading.style.display = "block";
 
-    const res = await fetch("http://localhost:3000/api/author/manuscripts/my", {
+    const res = await fetch("https://orange-press-be.vercel.app/api/author/manuscripts/my", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -82,7 +82,7 @@ async function uploadRevision(manuscriptId, fileInput) {
 
   try {
     const res = await fetch(
-      `http://localhost:3000/api/author/manuscripts/${manuscriptId}/reupload`,
+      `https://orange-press-be.vercel.app/api/author/manuscripts/${manuscriptId}/reupload`,
       {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },

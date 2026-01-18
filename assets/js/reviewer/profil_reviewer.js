@@ -13,7 +13,7 @@ let profileData = null;
 // === FETCH PROFIL ===
 async function loadProfile() {
   try {
-    const res = await fetch("http://localhost:3000/api/reviewer/me", {
+    const res = await fetch("https://orange-press-be.vercel.app/api/reviewer/me", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -23,7 +23,7 @@ async function loadProfile() {
       disableForm(); // Nonaktifkan form karena profil sudah ada
     } else if (res.status === 404) {
       // Profil belum dibuat → tampilkan nama/email dari user, aktifkan form
-      const userRes = await fetch("http://localhost:3000/api/auth/me", {
+      const userRes = await fetch("https://orange-press-be.vercel.app/api/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (userRes.ok) {
@@ -119,7 +119,7 @@ function getSelectedInterests() {
 async function createProfile(formData) {
   try {
     const res = await fetch(
-      "http://localhost:3000/api/reviewer/create/profile",
+      "https://orange-press-be.vercel.app/api/reviewer/create/profile",
       {
         method: "POST",
         headers: {

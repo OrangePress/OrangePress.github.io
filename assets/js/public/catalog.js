@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/api/public/catalog";
+const API_URL = "https://orange-press-be.vercel.app/api/public/catalog";
 
 let books = [];
 

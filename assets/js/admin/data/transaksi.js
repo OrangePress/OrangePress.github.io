@@ -34,7 +34,7 @@ async function loadPayments() {
   if (!container) return;
 
   try {
-    const res = await fetch("http://localhost:3000/api/admin/payments", {
+    const res = await fetch("https://orange-press-be.vercel.app/api/admin/payments", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -182,7 +182,7 @@ window.updatePaymentStatus = async (paymentId, newStatus) => {
       : `/api/admin/payments/${paymentId}/reject`;
 
   try {
-    const res = await fetch(`http://localhost:3000${endpoint}`, {
+    const res = await fetch(`https://orange-press-be.vercel.app${endpoint}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -310,7 +310,7 @@ window.openPaymentDetail = async (paymentId) => {
 
   try {
     const res = await fetch(
-      `http://localhost:3000/api/admin/payment/${paymentId}`,
+      `https://orange-press-be.vercel.app/api/admin/payment/${paymentId}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       },

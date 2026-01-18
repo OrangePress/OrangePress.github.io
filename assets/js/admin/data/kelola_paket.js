@@ -7,7 +7,7 @@ let packages = [];
 // === FETCH & RENDER ===
 async function loadPackages() {
   try {
-    const res = await fetch('http://localhost:3000/api/packages', {
+    const res = await fetch('https://orange-press-be.vercel.app/api/packages', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) throw new Error('Gagal memuat paket');
@@ -85,7 +85,7 @@ async function deletePackage(id) {
 
   if (result.isConfirmed) {
     try {
-      const res = await fetch(`http://localhost:3000/api/packages/${id}`, {
+      const res = await fetch(`https://orange-press-be.vercel.app/api/packages/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -179,7 +179,7 @@ async function submitAddPackage(e) {
   }
 
   try {
-    const res = await fetch('http://localhost:3000/api/packages', {
+    const res = await fetch('https://orange-press-be.vercel.app/api/packages', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,

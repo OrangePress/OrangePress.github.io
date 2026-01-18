@@ -4,7 +4,7 @@ const token = localStorage.getItem("token");
 // Fetch dan tampilkan statistik
 async function loadReviewerStats() {
   try {
-    const res = await fetch("http://localhost:3000/api/reviewer/stats", {
+    const res = await fetch("https://orange-press-be.vercel.app/api/reviewer/stats", {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",

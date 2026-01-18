@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:3000/api/author/agreement";
+const API_BASE = "https://orange-press-be.vercel.app/api/author/agreement";
 const buktiFileName = document.getElementById("buktiFileName");
 const token = localStorage.getItem("token");
 
@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
   agreementForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     async function fetchUser() {
-      const res = await fetch("http://localhost:3000/api/author/me", {
+      const res = await fetch("https://orange-press-be.vercel.app/api/author/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log(res);

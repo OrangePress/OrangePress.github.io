@@ -3,7 +3,7 @@ async function loadDashboardStats() {
   if (!token) return;
 
   try {
-    const res = await fetch("http://localhost:3000/api/admin/statistics", {
+    const res = await fetch("https://orange-press-be.vercel.app/api/admin/statistics", {
       headers: { Authorization: `Bearer ${token}` }
     });
 

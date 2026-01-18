@@ -31,7 +31,7 @@ async function loadAuthors() {
   const searchInput = document.getElementById("searchAuthor");
 
   try {
-    const res = await fetch("http://localhost:3000/api/admin/user", {
+    const res = await fetch("https://orange-press-be.vercel.app/api/admin/user", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -124,7 +124,7 @@ window.openAuthorDetail = async (userId) => {
   if (!token || !authorDetailModal) return;
 
   try {
-    const res = await fetch(`http://localhost:3000/api/admin/user/${userId}`, {
+    const res = await fetch(`https://orange-press-be.vercel.app/api/admin/user/${userId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 

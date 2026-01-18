@@ -18,7 +18,7 @@ let currentManuscriptId = null;
 // === FETCH & RENDER ===
 async function loadManuscripts() {
   try {
-    const res = await fetch("http://localhost:3000/api/reviewer/manuscripts", {
+    const res = await fetch("https://orange-press-be.vercel.app/api/reviewer/manuscripts", {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error("Gagal memuat naskah");
@@ -145,7 +145,7 @@ function downloadManuscript(id) {
 async function loadManuscriptDetail(id) {
   try {
     const res = await fetch(
-      `http://localhost:3000/api/reviewer/manuscripts/${id}`,
+      `https://orange-press-be.vercel.app/api/reviewer/manuscripts/${id}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -221,11 +221,11 @@ async function submitReview() {
       body = null;
 
     if (status === "Approved") {
-      url = `http://localhost:3000/api/reviewer/manuscripts/${currentManuscriptId}/approve`;
+      url = `https://orange-press-be.vercel.app/api/reviewer/manuscripts/${currentManuscriptId}/approve`;
     } else if (status === "Rejected") {
-      url = `http://localhost:3000/api/reviewer/manuscripts/${currentManuscriptId}/reject`;
+      url = `https://orange-press-be.vercel.app/api/reviewer/manuscripts/${currentManuscriptId}/reject`;
     } else if (status === "Revission") {
-      url = `http://localhost:3000/api/reviewer/manuscripts/${currentManuscriptId}/revision`;
+      url = `https://orange-press-be.vercel.app/api/reviewer/manuscripts/${currentManuscriptId}/revision`;
       body = JSON.stringify({
         revisionNote: document.getElementById("rvCatatan").value.trim(),
       });

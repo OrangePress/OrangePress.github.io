@@ -47,7 +47,7 @@ let reviewHistory = [];
 // === FETCH DATA RIWAYAT ===
 async function loadReviewHistory() {
   try {
-    const res = await fetch("http://localhost:3000/api/reviewer/review", {
+    const res = await fetch("https://orange-press-be.vercel.app/api/reviewer/review", {
       headers: { Authorization: `Bearer ${token}` },
     });
 

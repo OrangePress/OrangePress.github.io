@@ -5,7 +5,7 @@ let manuscripts = [];
 // === FETCH DAFTAR NASKAH ===
 async function loadManuscripts() {
   try {
-    const res = await fetch("http://localhost:3000/api/admin/manuscripts", {
+    const res = await fetch("https://orange-press-be.vercel.app/api/admin/manuscripts", {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error("Gagal memuat daftar naskah");
@@ -72,7 +72,7 @@ function fillFormByManuscriptId(id) {
 async function publishManuscript(manuscriptId, isbn) {
   try {
     const res = await fetch(
-      `http://localhost:3000/api/admin/manuscripts/${manuscriptId}/publish`,
+      `https://orange-press-be.vercel.app/api/admin/manuscripts/${manuscriptId}/publish`,
       {
         method: "POST",
         headers: {

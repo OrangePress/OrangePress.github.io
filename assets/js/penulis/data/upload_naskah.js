@@ -103,7 +103,7 @@ if (formNaskah) {
     const formData = new FormData(formNaskah);
 
     async function fetchUser() {
-      const res = await fetch("http://localhost:3000/api/author/me", {
+      const res = await fetch("https://orange-press-be.vercel.app/api/author/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log(res);
@@ -203,7 +203,7 @@ if (formNaskah) {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/author/manuscript",
+        "https://orange-press-be.vercel.app/api/author/manuscript",
         {
           method: "POST",
           headers: {

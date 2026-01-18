@@ -4,7 +4,7 @@ const token = localStorage.getItem("token");
 async function loadReviewAssignments() {
   try {
     const res = await fetch(
-      "http://localhost:3000/api/admin/manuscripts/review",
+      "https://orange-press-be.vercel.app/api/admin/manuscripts/review",
       {
         headers: { Authorization: `Bearer ${token}` },
       },
@@ -86,7 +86,7 @@ async function loadManuscriptsIntoBookSelect() {
       '<option value="">-- Pilih Naskah (Status Revisi) --</option>';
 
   try {
-    const res = await fetch("http://localhost:3000/api/admin/manuscripts", {
+    const res = await fetch("https://orange-press-be.vercel.app/api/admin/manuscripts", {
       headers: { Authorization: `Bearer ${token}` },
     });
     const manuscripts = await res.json();
@@ -137,7 +137,7 @@ async function sendToAuthor(manuscriptId) {
     preConfirm: async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/admin/manuscripts/${manuscriptId}/send-revision`,
+          `https://orange-press-be.vercel.app/api/admin/manuscripts/${manuscriptId}/send-revision`,
           {
             method: "POST",
             headers: {
@@ -186,7 +186,7 @@ async function loadReviewersIntoDropdown() {
   select.innerHTML = '<option value="">-- Pilih Reviewer --</option>';
 
   try {
-    const res = await fetch("http://localhost:3000/api/admin/reviewer", {
+    const res = await fetch("https://orange-press-be.vercel.app/api/admin/reviewer", {
       headers: { Authorization: `Bearer ${token}` },
     });
     const result = await res.json();
@@ -257,7 +257,7 @@ document.getElementById("assignForm").addEventListener("submit", async (e) => {
 
   try {
     const res = await fetch(
-      `http://localhost:3000/api/admin/manuscripts/${manuscriptId}/assign-reviewer`,
+      `https://orange-press-be.vercel.app/api/admin/manuscripts/${manuscriptId}/assign-reviewer`,
       {
         method: "POST",
         headers: {

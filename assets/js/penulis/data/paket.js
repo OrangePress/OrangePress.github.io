@@ -1,6 +1,6 @@
 // Konfigurasi API
-const API_URL_PACKAGES = "http://localhost:3000/api/packages";
-const API_URL_PAYMENT = "http://localhost:3000/api/author/payment";
+const API_URL_PACKAGES = "https://orange-press-be.vercel.app/api/packages";
+const API_URL_PAYMENT = "https://orange-press-be.vercel.app/api/author/payment";
 
 // Inisialisasi Modal
 const paymentModal = new bootstrap.Modal(
