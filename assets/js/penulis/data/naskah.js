@@ -20,39 +20,60 @@ function statusBadge(status, label) {
 // === LOAD DAFTAR NASKAH PENULIS ===
 async function loadAuthorManuscripts() {
   const loading = document.getElementById("loading");
+  const tableSection = document.getElementById("manuscriptTableSection");
   const detailSection = document.getElementById("manuscriptDetailSection");
   const formSection = document.getElementById("uploadFormSection");
+  const tbody = document.getElementById("manuscriptTableBody");
 
   try {
     loading.style.display = "block";
 
-    const res = await fetch("https://orange-press-be.vercel.app/api/author/manuscripts/my", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await fetch(
+      "https://orange-press-be.vercel.app/api/author/manuscripts/my",
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
 
-    if (!res.ok) throw new Error("Gagal memuat data naskah");
+    if (!res.ok) throw new Error("Gagal memuat naskah");
 
     const result = await res.json();
     const manuscripts = result.data || [];
 
-    if (manuscripts.length > 0) {
-      // Tampilkan detail naskah pertama
-      renderManuscriptDetail(manuscripts[0]);
-      formSection.style.display = "none";
-      detailSection.style.display = "block";
-    } else {
-      // Tampilkan form upload
+    if (manuscripts.length === 0) {
       formSection.style.display = "block";
+      tableSection.style.display = "none";
       detailSection.style.display = "none";
+      return;
     }
+
+    // tampilkan tabel
+    formSection.style.display = "none";
+    tableSection.style.display = "block";
+    detailSection.style.display = "none";
+
+    tbody.innerHTML = manuscripts
+      .map(
+        (m) => `
+      <tr>
+        <td>
+          <strong>${safeValue(m.title)}</strong><br>
+          <small class="text-muted">${safeValue(m.seriesName || "-")}</small>
+        </td>
+        <td>${statusBadge(m.status, m.statusLabel)}</td>
+        <td>${m.revisionCount || 0}</td>
+        <td>${new Date(m.createdAt).toLocaleDateString("id-ID")}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary"
+            onclick="openManuscriptDetail('${m._id}')">
+            Detail
+          </button>
+        </td>
+      </tr>
+    `,
+      )
+      .join("");
   } catch (err) {
-    console.error("Error:", err);
-    Swal.fire({
-      icon: "error",
-      title: "Gagal",
-      text: "Tidak dapat memuat data naskah.",
-      confirmButtonColor: "#ff6b00",
-    });
+    console.error(err);
+    Swal.fire("Error", "Gagal memuat daftar naskah", "error");
   } finally {
     loading.style.display = "none";
   }
@@ -87,7 +108,7 @@ async function uploadRevision(manuscriptId, fileInput) {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
-      }
+      },
     );
 
     const result = await res.json();
@@ -113,12 +134,43 @@ async function uploadRevision(manuscriptId, fileInput) {
   }
 }
 
+window.openManuscriptDetail = async (manuscriptId) => {
+  const loading = document.getElementById("loading");
+  const tableSection = document.getElementById("manuscriptTableSection");
+  const detailSection = document.getElementById("manuscriptDetailSection");
+
+  try {
+    loading.style.display = "block";
+
+    const res = await fetch(
+      `https://orange-press-be.vercel.app/api/author/manuscripts/${manuscriptId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+
+    if (!res.ok) throw new Error("Gagal memuat detail naskah");
+
+    const result = await res.json();
+    const manuscript = result.data;
+
+    renderManuscriptDetail(manuscript);
+
+    tableSection.style.display = "none";
+    detailSection.style.display = "block";
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", err.message, "error");
+  } finally {
+    loading.style.display = "none";
+  }
+};
+
 // === RENDER DETAIL NASKAH ===
 function renderManuscriptDetail(m) {
   // Ambil file
   const mId = m._id;
   const manuscripts = m.files?.manuscripts || [];
-  const latestManuscript = manuscripts[manuscripts.length - 1]?.url || "";
   const coverFront = m.files?.coverFront?.[0]?.url || "";
   const coverBack = m.files?.coverBack?.[0]?.url || "";
 
@@ -131,13 +183,6 @@ function renderManuscriptDetail(m) {
     ? `${m.userId.fullname} (${m.userId.email})`
     : "Tidak tersedia";
 
-  // Informasi Reviewer
-  const reviewerInfo = m.reviewerId
-    ? m.reviewerId.fullname
-      ? `${m.reviewerId.fullname} (${m.reviewerId.email})`
-      : m.reviewerId.email || "-"
-    : "Belum ditugaskan";
-
   const isReturned = m.status === "Returned" || m.statusLabel === "Returned";
   const revisionNoteContent =
     isReturned && m.revisionNote
@@ -146,6 +191,22 @@ function renderManuscriptDetail(m) {
         <p class="small mb-0 text-dark">${safeValue(m.revisionNote)}</p>
       </div>`
       : "";
+
+  const revisionFileUrl = m.revisionFileUrl;
+  const revisionFileBlock = revisionFileUrl
+    ? `
+    <h6 class="fw-bold mb-2 small text-uppercase">File Revisi dari Reviewer</h6>
+    <div class="border rounded p-2 bg-light mb-3">
+      <a href="${revisionFileUrl}" target="_blank"
+        class="badge bg-warning text-decoration-none">
+        Download File Revisi
+      </a>
+    </div>
+  `
+    : `
+    <h6 class="fw-bold mb-2 small text-uppercase">File Revisi dari Reviewer</h6>
+    <p class="text-muted small mb-3">Belum ada file revisi dari reviewer</p>
+  `;
 
   // Tampilkan tombol revisi hanya jika status = "Revision"
   const revisionButton =
@@ -174,7 +235,7 @@ function renderManuscriptDetail(m) {
         }
         <div class="status-floating">${statusBadge(
           m.status,
-          m.statusLabel
+          m.statusLabel,
         )}</div>
         <div class="position-relative">
           <h2 class="text-white fw-bold mb-0">${safeValue(m.title)}</h2>
@@ -188,16 +249,16 @@ function renderManuscriptDetail(m) {
             <h6 class="fw-bold mb-3">Informasi Naskah</h6>
             <div class="info-grid mb-3">
               <div class="info-item"><label>ISBN</label><span>${safeValue(
-                m.isbn
+                m.isbn,
               )}</span></div>
               <div class="info-item"><label>Tahun</label><span>${safeValue(
-                m.publishYear
+                m.publishYear,
               )}</span></div>
               <div class="info-item"><label>Revisi</label><span>${safeValue(
-                m.revisionCount
+                m.revisionCount,
               )}</span></div>
               <div class="info-item"><label>Status Step</label><span>${safeValue(
-                m.statusStep
+                m.statusStep,
               )}</span></div>
               <div class="info-item"><label>Perpusnas</label><span>${
                 m.isUploadedToPerpusnas ? "Ya" : "Tidak"
@@ -219,10 +280,13 @@ function renderManuscriptDetail(m) {
 
             ${revisionNoteContent}
 
-            <h6 class="fw-bold mb-2 small text-uppercase">Penulis</h6>
-            <p class="text-muted small mb-3">${authorInfo}</p>
+  <h6 class="fw-bold mb-2 small text-uppercase">Penulis</h6>
+  <p class="text-muted small mb-3">${authorInfo}</p>
 
-            <h6 class="fw-bold mb-2 small text-uppercase">Riwayat Upload Naskah</h6>
+  ${revisionFileBlock}
+
+
+  <h6 class="fw-bold mb-2 small text-uppercase">Riwayat Upload Naskah</h6>
             <div class="history-list border rounded p-2 bg-light">
               ${
                 manuscripts.length > 0
@@ -233,13 +297,13 @@ function renderManuscriptDetail(m) {
                     <span class="small text-truncate me-2">Versi ${
                       index + 1
                     } (${new Date(file.uploadedAt).toLocaleDateString(
-                          "id-ID"
-                        )})</span>
+                      "id-ID",
+                    )})</span>
                     <a href="${
                       file.url
                     }" target="_blank" class="badge bg-primary text-decoration-none">Buka</a>
                   </div>
-                `
+                `,
                       )
                       .join("")
                   : "<p class='small text-muted mb-0'>Belum ada riwayat upload</p>"
