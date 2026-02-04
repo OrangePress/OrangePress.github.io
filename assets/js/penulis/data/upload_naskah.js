@@ -103,9 +103,12 @@ if (formNaskah) {
     const formData = new FormData(formNaskah);
 
     async function fetchUser() {
-      const res = await fetch("https://orange-press-be.vercel.app/api/author/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        "https://orange-press-be.vercel.app/api/author/me",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       console.log(res);
 
       if (!res.ok) throw new Error("Gagal memuat data user");
@@ -152,7 +155,7 @@ if (formNaskah) {
     const ilustrasiValue = formData.get("ilustrasi");
     formData.set(
       "hasIllustration",
-      ilustrasiValue === "Ya, ada ilustrasi" ? "true" : "false"
+      ilustrasiValue === "Ya, ada ilustrasi" ? "true" : "false",
     );
 
     const kdtValue = formData.get("kdt");
@@ -192,7 +195,7 @@ if (formNaskah) {
       "manuscripts",
       "coverFront",
       "coverBack",
-    //   "attachments",
+      //   "attachments",
     ];
     for (const fileField of requiredFiles) {
       if (!formData.has(fileField) || !formData.get(fileField).name) {
@@ -202,6 +205,16 @@ if (formNaskah) {
     }
 
     try {
+      // Tampilkan loading
+      Swal.fire({
+        title: "Mengunggah Naskah...",
+        html: "Mohon tunggu, file sedang diunggah.",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
       const response = await fetch(
         "https://orange-press-be.vercel.app/api/author/manuscript",
         {
@@ -210,11 +223,10 @@ if (formNaskah) {
             Authorization: `Bearer ${token}`,
           },
           body: formData,
-        }
+        },
       );
 
       console.log(formData.get);
-      
 
       const result = await response.json();
 
@@ -238,7 +250,7 @@ if (formNaskah) {
       Swal.fire(
         "Error",
         err.message || "Terjadi kesalahan saat mengunggah.",
-        "error"
+        "error",
       );
     }
   });
