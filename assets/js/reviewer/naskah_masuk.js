@@ -169,11 +169,113 @@ async function loadManuscriptDetail(id) {
       };
     }
 
+    const penulis =
+      data.contributors
+        ?.filter((c) => c.role === "Penulis")
+        .map((c) => c.name)
+        .join(", ") || "-";
+
+    const ai = data.aiEditorialRecommendation || {};
+
     // ... sisa kode pengisian detailContent tetap sama ...
     document.getElementById("detailContent").innerHTML = `
-        <div style="margin-bottom:1rem;"><strong>Status:</strong> <span class="badge">${data.status}</span></div>
-        <div style="margin-bottom:1rem;"><strong>Judul:</strong> ${data.title}</div>
-        `;
+    <div style="margin-bottom:1rem;">
+        <strong>Status:</strong>
+        <span class="badge">${data.statusLabel}</span>
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Judul:</strong> ${data.title}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Penulis:</strong> ${penulis}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Kelompok Pembaca:</strong> ${data.readerGroup}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Jenis Pustaka:</strong> ${data.libraryType}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Kategori:</strong> ${data.categoryType}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>ISBN:</strong> ${data.isbnType} (${data.hopeIsbnType})
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Jumlah Halaman:</strong> ${data.pageCount}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Tinggi Buku:</strong> ${data.bookHeightCm} cm
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Seri Buku:</strong> ${data.seriesName || "-"}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Memerlukan KDT:</strong> ${data.needKdt ? "Ya" : "Tidak"}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Ilustrasi:</strong> ${data.hasIllustration ? "Ya" : "Tidak"}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Sinopsis:</strong><br>
+        ${data.synopsis || "-"}
+    </div>
+
+    <hr>
+
+    <h4>🤖 AI Editorial Recommendation</h4>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Status AI:</strong> ${ai.status || "-"}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Model:</strong> ${ai.model || "-"}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Generated At:</strong> ${
+          ai.generatedAt ? formatDateLabel(ai.generatedAt) : "-"
+        }
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Summary:</strong><br>
+        ${ai.summary || "-"}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Initial Quality Notes:</strong><br>
+        ${ai.initialQualityNotes || "-"}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Reviewer Focus:</strong><br>
+        ${ai.reviewerFocus || "-"}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Initial Issues:</strong><br>
+        ${ai.initialIssues || "-"}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <strong>Temporary Recommendation:</strong><br>
+        ${ai.temporaryRecommendation || "-"}
+    </div>
+`;
   } catch (err) {
     console.error(err);
   }
@@ -252,7 +354,6 @@ async function submitReview() {
 
     // Jika status adalah revisi, tambahkan body berupa formData
     if (status === "Revission") {
-
       fetchOptions.body = formData;
     }
 

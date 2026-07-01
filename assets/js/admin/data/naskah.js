@@ -26,7 +26,9 @@ function authFetch(url, options = {}) {
 // Muat daftar naskah
 async function loadManuscripts() {
   try {
-    const res = await authFetch("https://orange-press-be.vercel.app/api/admin/manuscripts");
+    const res = await authFetch(
+      "https://orange-press-be.vercel.app/api/admin/manuscripts",
+    );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const manuscripts = await res.json();
@@ -146,6 +148,29 @@ async function loadManuscriptDetail(id) {
     } else {
       attList.innerHTML = "<li>Tidak ada lampiran</li>";
     }
+
+    // ===============================
+    // AI Editorial Recommendation
+    // ===============================
+    const ai = data.aiEditorialRecommendation || {};
+
+    document.getElementById("mdAiStatus").textContent = ai.status || "-";
+
+    document.getElementById("mdAiModel").textContent = ai.model || "-";
+
+    document.getElementById("mdSummary").textContent = ai.summary || "-";
+
+    document.getElementById("mdInitialQualityNotes").textContent =
+      ai.initialQualityNotes || "-";
+
+    document.getElementById("mdReviewerFocus").textContent =
+      ai.reviewerFocus || "-";
+
+    document.getElementById("mdInitialIssues").textContent =
+      ai.initialIssues || "-";
+
+    document.getElementById("mdTemporaryRecommendation").textContent =
+      ai.temporaryRecommendation || "-";
 
     // Tampilkan modal
     document.getElementById("manuscriptDetailModal").style.display = "flex";
