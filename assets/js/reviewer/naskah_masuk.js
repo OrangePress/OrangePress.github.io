@@ -144,6 +144,128 @@ function downloadManuscript(id) {
   }
 }
 
+function safeText(value) {
+  if (value === null || value === undefined || value === "") return "-";
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatDateLabel(dateString) {
+  if (!dateString) return "-";
+
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return "-";
+
+  return date.toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatAiStatus(status) {
+  const map = {
+    tunggu: "Menunggu",
+    proses: "Diproses",
+    selesai: "Selesai",
+    gagal: "Gagal",
+    completed: "Selesai",
+    failed: "Gagal",
+  };
+
+  return map[status] || status || "-";
+}
+
+function renderList(items, emptyText = "Tidak ada data", type = "normal") {
+  if (!Array.isArray(items) || items.length === 0) {
+    return `<ul class="review-clean-list"><li>${safeText(emptyText)}</li></ul>`;
+  }
+
+  return `
+    <ul class="review-clean-list ${type}">
+      ${items.map((item) => `<li>${safeText(item)}</li>`).join("")}
+    </ul>
+  `;
+}
+
+function renderFormattingInstruction(formattingInstruction) {
+  if (!formattingInstruction || Object.keys(formattingInstruction).length === 0) {
+    return `<ul class="review-clean-list"><li>Tidak ada data format</li></ul>`;
+  }
+
+  const labelMap = {
+    font: "Font",
+    fontSize: "Ukuran Font",
+    spacing: "Spasi",
+    margin: "Margin",
+    bookSize: "Ukuran Buku",
+  };
+
+  return `
+    <ul class="review-clean-list">
+      ${Object.entries(formattingInstruction)
+        .map(([key, value]) => {
+          const label = labelMap[key] || key;
+          const expected = value?.expected || "-";
+          const status = value?.foundInstruction
+            ? "✔️ Terdeteksi"
+            : "❌ Tidak terdeteksi";
+
+          return `
+            <li>
+              <strong>${safeText(label)}:</strong>
+              ${safeText(expected)}
+              <span class="format-status">${safeText(status)}</span>
+            </li>
+          `;
+        })
+        .join("")}
+    </ul>
+  `;
+}
+
+
+function renderFileCard(label, fileUrl) {
+  return `
+    <div class="review-file-row">
+      <span>${safeText(label)}</span>
+      ${
+        fileUrl
+          ? `<a href="${safeText(fileUrl)}" target="_blank" class="btn-small">Download</a>`
+          : `<span class="file-empty">Tidak tersedia</span>`
+      }
+    </div>
+  `;
+}
+
+function renderAttachmentList(attachments = []) {
+  if (!Array.isArray(attachments) || attachments.length === 0) {
+    return `<div class="review-file-row"><span>Lampiran</span><span class="file-empty">Tidak ada lampiran</span></div>`;
+  }
+
+  return attachments
+    .map(
+      (att, index) => `
+        <div class="review-file-row">
+          <span>Lampiran ${index + 1}</span>
+          ${
+            att.url
+              ? `<a href="${safeText(att.url)}" target="_blank" class="btn-small">Download</a>`
+              : `<span class="file-empty">Tidak tersedia</span>`
+          }
+        </div>
+      `,
+    )
+    .join("");
+}
+
 async function loadManuscriptDetail(id) {
   try {
     const res = await fetch(
@@ -152,21 +274,33 @@ async function loadManuscriptDetail(id) {
         headers: { Authorization: `Bearer ${token}` },
       },
     );
-    const data = await res.json();
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(result.message || "Gagal memuat detail naskah");
+    }
+
+    const data = result.data || result;
 
     const isReviewed =
-      data.status === "Approved" || data.status === "Published";
+      data.status === "Approved" ||
+      data.status === "Published" ||
+      data.status === "Rejected" ||
+      data.status === "Revission";
+
     const startReviewBtn = document.getElementById("startReviewBtn");
 
-    // Sembunyikan tombol jika sudah di-review
-    if (isReviewed) {
-      startReviewBtn.style.display = "none";
-    } else {
-      startReviewBtn.style.display = "block";
-      startReviewBtn.onclick = () => {
-        document.getElementById("detailModal").style.display = "none";
-        startReview(id);
-      };
+    if (startReviewBtn) {
+      if (isReviewed) {
+        startReviewBtn.style.display = "none";
+      } else {
+        startReviewBtn.style.display = "block";
+        startReviewBtn.onclick = () => {
+          document.getElementById("detailModal").style.display = "none";
+          startReview(id);
+        };
+      }
     }
 
     const penulis =
@@ -175,109 +309,302 @@ async function loadManuscriptDetail(id) {
         .map((c) => c.name)
         .join(", ") || "-";
 
+    const allContributors =
+      data.contributors
+        ?.map((c) => `${c.role}: ${c.name}`)
+        .join("; ") || "-";
+
+    const files = data.files || {};
     const ai = data.aiEditorialRecommendation || {};
+    const template = ai.templateCompatibility || {};
+    const isbn = ai.isbnDetection || {};
+    const fieldReviewer = ai.fieldAndReviewer || {};
+    const finalRec = ai.finalRecommendation || {};
 
-    // ... sisa kode pengisian detailContent tetap sama ...
     document.getElementById("detailContent").innerHTML = `
-    <div style="margin-bottom:1rem;">
-        <strong>Status:</strong>
-        <span class="badge">${data.statusLabel}</span>
-    </div>
+      <div class="review-detail-box">
 
-    <div style="margin-bottom:1rem;">
-        <strong>Judul:</strong> ${data.title}
-    </div>
+        <!-- FORMULIR NASKAH -->
+        <section class="review-section">
+          <div class="section-heading">
+            <h4>📝 Formulir Naskah</h4>
+          </div>
 
-    <div style="margin-bottom:1rem;">
-        <strong>Penulis:</strong> ${penulis}
-    </div>
+          <div class="review-grid">
+            <div class="review-item">
+              <div class="review-label">Status</div>
+              <div class="review-value">
+                <span class="status-badge">${safeText(data.statusLabel || data.status || "-")}</span>
+              </div>
+            </div>
 
-    <div style="margin-bottom:1rem;">
-        <strong>Kelompok Pembaca:</strong> ${data.readerGroup}
-    </div>
+            <div class="review-item">
+              <div class="review-label">Judul Buku</div>
+              <div class="review-value">${safeText(data.title)}</div>
+            </div>
 
-    <div style="margin-bottom:1rem;">
-        <strong>Jenis Pustaka:</strong> ${data.libraryType}
-    </div>
+            <div class="review-item review-full">
+              <div class="review-label">Penulis</div>
+              <div class="review-value">${safeText(penulis)}</div>
+            </div>
 
-    <div style="margin-bottom:1rem;">
-        <strong>Kategori:</strong> ${data.categoryType}
-    </div>
+            <div class="review-item review-full">
+              <div class="review-label">Kepengarangan</div>
+              <div class="review-value">${safeText(allContributors)}</div>
+            </div>
 
-    <div style="margin-bottom:1rem;">
-        <strong>ISBN:</strong> ${data.isbnType} (${data.hopeIsbnType})
-    </div>
+            <div class="review-item">
+              <div class="review-label">Kelompok Pembaca</div>
+              <div class="review-value">${safeText(data.readerGroup)}</div>
+            </div>
 
-    <div style="margin-bottom:1rem;">
-        <strong>Jumlah Halaman:</strong> ${data.pageCount}
-    </div>
+            <div class="review-item">
+              <div class="review-label">Jenis Pustaka</div>
+              <div class="review-value">${safeText(data.libraryType)}</div>
+            </div>
 
-    <div style="margin-bottom:1rem;">
-        <strong>Tinggi Buku:</strong> ${data.bookHeightCm} cm
-    </div>
+            <div class="review-item">
+              <div class="review-label">Kategori Pustaka</div>
+              <div class="review-value">${safeText(data.categoryType)}</div>
+            </div>
 
-    <div style="margin-bottom:1rem;">
-        <strong>Seri Buku:</strong> ${data.seriesName || "-"}
-    </div>
+            <div class="review-item">
+              <div class="review-label">Media Terbitan ISBN</div>
+              <div class="review-value">${safeText(data.isbnType)}</div>
+            </div>
 
-    <div style="margin-bottom:1rem;">
-        <strong>Memerlukan KDT:</strong> ${data.needKdt ? "Ya" : "Tidak"}
-    </div>
+            <div class="review-item">
+              <div class="review-label">Jenis Permohonan ISBN</div>
+              <div class="review-value">${safeText(data.hopeIsbnType)}</div>
+            </div>
 
-    <div style="margin-bottom:1rem;">
-        <strong>Ilustrasi:</strong> ${data.hasIllustration ? "Ya" : "Tidak"}
-    </div>
+            <div class="review-item">
+              <div class="review-label">Jumlah Halaman</div>
+              <div class="review-value">${safeText(data.pageCount)}</div>
+            </div>
 
-    <div style="margin-bottom:1rem;">
-        <strong>Sinopsis:</strong><br>
-        ${data.synopsis || "-"}
-    </div>
+            <div class="review-item">
+              <div class="review-label">Tinggi Buku</div>
+              <div class="review-value">
+                ${data.bookHeightCm ? `${safeText(data.bookHeightCm)} cm` : "-"}
+              </div>
+            </div>
 
-    <hr>
+            <div class="review-item">
+              <div class="review-label">Seri Buku</div>
+              <div class="review-value">${safeText(data.seriesName)}</div>
+            </div>
 
-    <h4>🤖 AI Editorial Recommendation</h4>
+            <div class="review-item">
+              <div class="review-label">Memerlukan KDT</div>
+              <div class="review-value">${data.needKdt ? "Ya" : "Tidak"}</div>
+            </div>
 
-    <div style="margin-bottom:1rem;">
-        <strong>Status AI:</strong> ${ai.status || "-"}
-    </div>
+            <div class="review-item">
+              <div class="review-label">Ilustrasi</div>
+              <div class="review-value">${data.hasIllustration ? "Ya" : "Tidak"}</div>
+            </div>
 
-    <div style="margin-bottom:1rem;">
-        <strong>Model:</strong> ${ai.model || "-"}
-    </div>
+            <div class="review-item review-full">
+              <div class="review-label">Sinopsis</div>
+              <div class="review-value">${safeText(data.synopsis || data.description || "-")}</div>
+            </div>
+          </div>
+        </section>
 
-    <div style="margin-bottom:1rem;">
-        <strong>Generated At:</strong> ${
-          ai.generatedAt ? formatDateLabel(ai.generatedAt) : "-"
+        <!-- FILE -->
+        <section class="review-section">
+          <div class="section-heading">
+            <h4>📎 File & Lampiran</h4>
+          </div>
+
+          <div class="review-file-box">
+            ${renderFileCard("Naskah / Dummy Buku", files.manuscripts?.[0]?.url)}
+            ${renderFileCard("Cover Depan", files.coverFront?.[0]?.url)}
+            ${renderFileCard("Cover Belakang", files.coverBack?.[0]?.url)}
+            ${renderFileCard("Hasil Cek Plagiarisme", files.plagiarismReport?.[0]?.url)}
+            ${renderAttachmentList(files.attachments)}
+          </div>
+        </section>
+
+        <!-- AI SUMMARY CARD -->
+        <section class="review-section ai-highlight-section">
+          <div class="section-heading">
+            <h4>🤖 AI Co-Reviewer Recommendation</h4>
+          </div>
+
+          <div class="ai-summary-grid">
+            <div class="ai-score-card">
+              <div class="ai-score-label">Kesesuaian Template</div>
+              <div class="ai-score-number">${safeText(template.label || `${template.score || 0}%`)}</div>
+              <div class="ai-score-desc">${safeText(template.description)}</div>
+            </div>
+
+            <div class="ai-decision-card">
+              <div class="ai-score-label">Label Akhir</div>
+              <div class="ai-decision-text">
+                ${safeText(finalRec.label || ai.temporaryRecommendation || "-")}
+              </div>
+              <div class="ai-score-desc">${safeText(finalRec.reason)}</div>
+            </div>
+          </div>
+
+          <div class="review-grid">
+            <div class="review-item">
+              <div class="review-label">Status AI</div>
+              <div class="review-value">${safeText(formatAiStatus(ai.status))}</div>
+            </div>
+
+            <div class="review-item">
+              <div class="review-label">Model</div>
+              <div class="review-value">${safeText(ai.model)}</div>
+            </div>
+
+            <div class="review-item">
+              <div class="review-label">Generated At</div>
+              <div class="review-value">${safeText(formatDateLabel(ai.generatedAt))}</div>
+            </div>
+
+            <div class="review-item">
+              <div class="review-label">Keputusan</div>
+              <div class="review-value">${safeText(finalRec.decision)}</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TEMPLATE DETAIL -->
+        <section class="review-section">
+          <div class="section-heading">
+            <h4>📌 Detail Kesesuaian Template</h4>
+          </div>
+
+          <div class="review-grid">
+            <div class="review-item review-full">
+              <div class="review-label">Aspek yang Dinilai</div>
+              <div class="review-value">${safeText(template.assessedAspects)}</div>
+            </div>
+
+            <div class="review-item review-full">
+              <div class="review-label">Bagian yang Sesuai</div>
+              <div class="review-value">
+                ${renderList(template.matchedSections, "Belum ada bagian yang terdeteksi sesuai", "matched")}
+              </div>
+            </div>
+
+            <div class="review-item review-full">
+              <div class="review-label">Bagian yang Belum Sesuai / Tidak Terdeteksi</div>
+              <div class="review-value">
+                ${renderList(template.missingSections, "Tidak ada bagian yang kurang", "missing")}
+              </div>
+            </div>
+
+            <div class="review-item review-full">
+              <div class="review-label">Instruksi Format Template</div>
+              <div class="review-value">
+                ${renderFormattingInstruction(template.formattingInstruction)}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ISBN & REVIEWER -->
+        <section class="review-section">
+          <div class="section-heading">
+            <h4>🔎 ISBN, Bidang Ilmu & Reviewer</h4>
+          </div>
+
+          <div class="review-grid">
+            <div class="review-item">
+              <div class="review-label">Deteksi ISBN</div>
+              <div class="review-value">${safeText(isbn.label)}</div>
+            </div>
+
+            <div class="review-item">
+              <div class="review-label">Nomor ISBN</div>
+              <div class="review-value">
+                ${
+                  Array.isArray(isbn.numbers) && isbn.numbers.length > 0
+                    ? safeText(isbn.numbers.join(", "))
+                    : "-"
+                }
+              </div>
+            </div>
+
+            <div class="review-item">
+              <div class="review-label">Bidang Ilmu</div>
+              <div class="review-value">${safeText(fieldReviewer.field)}</div>
+            </div>
+
+            <div class="review-item">
+              <div class="review-label">Reviewer Simulasi</div>
+              <div class="review-value">${safeText(fieldReviewer.reviewer)}</div>
+            </div>
+
+            <div class="review-item">
+              <div class="review-label">Keahlian Reviewer</div>
+              <div class="review-value">${safeText(fieldReviewer.expertise)}</div>
+            </div>
+
+            <div class="review-item review-full">
+              <div class="review-label">Catatan Reviewer</div>
+              <div class="review-value">${safeText(fieldReviewer.note)}</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CATATAN AI -->
+        <section class="review-section">
+          <div class="section-heading">
+            <h4>🧾 Catatan AI untuk Reviewer</h4>
+          </div>
+
+          <div class="review-grid">
+            <div class="review-item review-full">
+              <div class="review-label">Ringkasan Naskah</div>
+              <div class="review-value">${safeText(ai.summary)}</div>
+            </div>
+
+            <div class="review-item review-full">
+              <div class="review-label">Catatan Kualitas Awal</div>
+              <div class="review-value">${safeText(ai.initialQualityNotes)}</div>
+            </div>
+
+            <div class="review-item review-full">
+              <div class="review-label">Fokus Reviewer</div>
+              <div class="review-value">${safeText(ai.reviewerFocus)}</div>
+            </div>
+
+            <div class="review-item review-full">
+              <div class="review-label">Masalah Awal</div>
+              <div class="review-value">${safeText(ai.initialIssues)}</div>
+            </div>
+
+            <div class="review-item review-full">
+              <div class="review-label">Rekomendasi Sementara</div>
+              <div class="review-value">${safeText(ai.temporaryRecommendation)}</div>
+            </div>
+          </div>
+        </section>
+
+        ${
+          ai.error
+            ? `
+              <section class="review-section error-section">
+                <div class="section-heading">
+                  <h4>⚠️ Error AI</h4>
+                </div>
+                <div class="review-value">${safeText(ai.error)}</div>
+              </section>
+            `
+            : ""
         }
-    </div>
+      </div>
+    `;
 
-    <div style="margin-bottom:1rem;">
-        <strong>Summary:</strong><br>
-        ${ai.summary || "-"}
-    </div>
-
-    <div style="margin-bottom:1rem;">
-        <strong>Initial Quality Notes:</strong><br>
-        ${ai.initialQualityNotes || "-"}
-    </div>
-
-    <div style="margin-bottom:1rem;">
-        <strong>Reviewer Focus:</strong><br>
-        ${ai.reviewerFocus || "-"}
-    </div>
-
-    <div style="margin-bottom:1rem;">
-        <strong>Initial Issues:</strong><br>
-        ${ai.initialIssues || "-"}
-    </div>
-
-    <div style="margin-bottom:1rem;">
-        <strong>Temporary Recommendation:</strong><br>
-        ${ai.temporaryRecommendation || "-"}
-    </div>
-`;
+    document.getElementById("detailModal").style.display = "flex";
   } catch (err) {
     console.error(err);
+    Swal.fire("Error", err.message || "Gagal memuat detail naskah.", "error");
   }
 }
 

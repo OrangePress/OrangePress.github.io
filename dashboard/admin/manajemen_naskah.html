@@ -68,105 +68,89 @@
             <!-- HEADER MODAL -->
             <div class="detail-header">
               <div>
-                <!-- Judul naskah -->
                 <h3 id="detailJudul" class="detail-title">Detail Naskah</h3>
-
-                <!-- Subjudul: ditulis oleh ... (akan diisi JS) -->
                 <p id="detailSubJudul" class="detail-subtitle">
                   Ditulis oleh -
                 </p>
               </div>
+
               <button class="close-detail" id="closeDetailBtn">✕</button>
             </div>
 
             <!-- BODY -->
-            <!-- Disesuaikan dengan FORM pada gambar 2 (urut & label),
-               namun tetap mempertahankan ID yang dipakai JS agar kompatibel. -->
             <div id="detailBody" class="detail-body">
-              <!-- Formulir Naskah -->
+              <!-- =============================== -->
+              <!-- FORMULIR NASKAH -->
+              <!-- =============================== -->
               <div class="md-section">
                 <h4 class="md-section-title">📝 Formulir Naskah</h4>
 
                 <div class="md-grid">
-                  <!-- Jenis Permohonan ISBN -->
                   <div class="md-item">
                     <div class="md-label">Jenis Permohonan ISBN</div>
                     <div class="md-value" id="mdJenisIsbn">-</div>
                   </div>
 
-                  <!-- Judul Buku -->
                   <div class="md-item">
                     <div class="md-label">Judul Buku</div>
                     <div class="md-value" id="mdJudul">-</div>
                   </div>
 
-                  <!-- Kepengarangan (semua kontributor) -->
                   <div class="md-item md-full">
                     <div class="md-label">Kepengarangan</div>
                     <div class="md-value" id="mdKepengarangan">-</div>
                   </div>
 
-                  <!-- Media Terbitan ISBN -->
                   <div class="md-item">
                     <div class="md-label">Media Terbitan ISBN</div>
                     <div class="md-value" id="mdMediaTerbit">-</div>
                   </div>
 
-                  <!-- Kelompok Pembaca -->
                   <div class="md-item">
                     <div class="md-label">Kelompok Pembaca</div>
                     <div class="md-value" id="mdKelompokPembaca">-</div>
                   </div>
 
-                  <!-- Jenis Pustaka -->
                   <div class="md-item">
                     <div class="md-label">Jenis Pustaka</div>
                     <div class="md-value" id="mdJenisPustaka">-</div>
                   </div>
 
-                  <!-- Kategori Jenis Pustaka -->
                   <div class="md-item">
                     <div class="md-label">Kategori Jenis Pustaka</div>
                     <div class="md-value" id="mdKategoriPustaka">-</div>
                   </div>
 
-                  <!-- KDT -->
                   <div class="md-item">
                     <div class="md-label">Apakah memerlukan KDT?</div>
                     <div class="md-value" id="mdKdt">-</div>
                   </div>
 
-                  <!-- Ilustrasi -->
                   <div class="md-item">
                     <div class="md-label">Apakah terdapat ilustrasi?</div>
                     <div class="md-value" id="mdIlustrasi">-</div>
                   </div>
 
-                  <!-- Jumlah Halaman -->
                   <div class="md-item">
                     <div class="md-label">Jumlah Halaman</div>
                     <div class="md-value" id="mdJumlahHalaman">-</div>
                   </div>
 
-                  <!-- Tinggi Buku -->
                   <div class="md-item">
                     <div class="md-label">Tinggi Buku (cm)</div>
                     <div class="md-value" id="mdTinggiBuku">-</div>
                   </div>
 
-                  <!-- Seri Buku -->
                   <div class="md-item">
                     <div class="md-label">Seri Buku</div>
                     <div class="md-value" id="mdSeriBuku">-</div>
                   </div>
 
-                  <!-- Sinopsis -->
                   <div class="md-item md-full">
                     <div class="md-label">Deskripsi/Abstrak/Sinopsis Buku</div>
                     <div class="md-value" id="mdDeskripsi">-</div>
                   </div>
 
-                  <!-- Status Proses -->
                   <div class="md-item md-full">
                     <div class="md-label">Status Proses</div>
                     <div class="md-value" id="mdStatus">-</div>
@@ -174,12 +158,13 @@
                 </div>
               </div>
 
-              <!-- File & Lampiran -->
+              <!-- =============================== -->
+              <!-- FILE & LAMPIRAN -->
+              <!-- =============================== -->
               <div class="md-section">
                 <h4 class="md-section-title">📎 File & Lampiran</h4>
 
                 <div class="md-grid">
-                  <!-- Plagiarisme -->
                   <div class="md-item md-full" id="plagiarismSection">
                     <div class="md-label">Hasil Cek Plagiarisme (PDF)</div>
                     <div class="md-value">
@@ -197,7 +182,6 @@
                     </div>
                   </div>
 
-                  <!-- Naskah/Dummy -->
                   <div class="md-item md-full" id="manuscriptSection">
                     <div class="md-label">Naskah / Dummy Buku</div>
                     <div class="md-value">
@@ -215,7 +199,6 @@
                     </div>
                   </div>
 
-                  <!-- Attachment -->
                   <div class="md-item md-full" id="attachmentSection">
                     <div class="md-label">File Attachment</div>
                     <div class="md-value">
@@ -223,7 +206,6 @@
                     </div>
                   </div>
 
-                  <!-- Cover Depan -->
                   <div class="md-item md-full" id="coverFrontSection">
                     <div class="md-label">Cover Buku Depan</div>
                     <div class="md-value">
@@ -241,7 +223,6 @@
                     </div>
                   </div>
 
-                  <!-- Cover Belakang -->
                   <div class="md-item md-full" id="coverBackSection">
                     <div class="md-label">Cover Buku Belakang</div>
                     <div class="md-value">
@@ -261,20 +242,22 @@
                 </div>
               </div>
 
-              <!-- AI Recommendation -->
+              <!-- =============================== -->
+              <!-- AI CO-REVIEWER -->
+              <!-- =============================== -->
               <div class="md-section">
-                <h4 class="md-section-title">🤖 AI Editorial Recommendation</h4>
+                <h4 class="md-section-title">
+                  🤖 AI Co-Reviewer Recommendation
+                </h4>
 
                 <div class="md-grid">
-                  <!-- Status -->
                   <div class="md-item">
-                    <div class="md-label">Status</div>
+                    <div class="md-label">Status AI</div>
                     <div class="md-value">
                       <span id="mdAiStatus">-</span>
                     </div>
                   </div>
 
-                  <!-- AI Model -->
                   <div class="md-item">
                     <div class="md-label">AI Model</div>
                     <div class="md-value">
@@ -282,7 +265,129 @@
                     </div>
                   </div>
 
-                  <!-- Summary -->
+                  <div class="md-item">
+                    <div class="md-label">Waktu Generate</div>
+                    <div class="md-value">
+                      <span id="mdAiGeneratedAt">-</span>
+                    </div>
+                  </div>
+
+                  <div class="md-item">
+                    <div class="md-label">Label Akhir</div>
+                    <div class="md-value">
+                      <span id="mdFinalRecommendationLabel">-</span>
+                    </div>
+                  </div>
+
+                  <div class="md-item md-full">
+                    <div class="md-label">Keputusan</div>
+                    <div class="md-value">
+                      <p id="mdFinalDecision">-</p>
+                    </div>
+                  </div>
+
+                  <div class="md-item md-full">
+                    <div class="md-label">Alasan Keputusan</div>
+                    <div class="md-value">
+                      <p id="mdFinalReason">-</p>
+                    </div>
+                  </div>
+
+                  <!-- Kesesuaian Template -->
+                  <div class="md-item">
+                    <div class="md-label">Kesesuaian Template</div>
+                    <div class="md-value">
+                      <span id="mdTemplateScore">-</span>
+                    </div>
+                  </div>
+
+                  <div class="md-item md-full">
+                    <div class="md-label">Deskripsi Kesesuaian Template</div>
+                    <div class="md-value">
+                      <p id="mdTemplateDescription">-</p>
+                    </div>
+                  </div>
+
+                  <div class="md-item md-full">
+                    <div class="md-label">Aspek yang Dinilai</div>
+                    <div class="md-value">
+                      <p id="mdTemplateAssessedAspects">-</p>
+                    </div>
+                  </div>
+
+                  <div class="md-item md-full">
+                    <div class="md-label">
+                      Bagian yang Sesuai dengan Template
+                    </div>
+                    <div class="md-value">
+                      <ul class="md-file-list" id="mdMatchedSections"></ul>
+                    </div>
+                  </div>
+
+                  <div class="md-item md-full">
+                    <div class="md-label">
+                      Bagian yang Belum Sesuai / Tidak Terdeteksi
+                    </div>
+                    <div class="md-value">
+                      <ul class="md-file-list" id="mdMissingSections"></ul>
+                    </div>
+                  </div>
+
+                  <div class="md-item md-full">
+                    <div class="md-label">Instruksi Format dari Template</div>
+                    <div class="md-value">
+                      <ul
+                        class="md-file-list"
+                        id="mdFormattingInstruction"
+                      ></ul>
+                    </div>
+                  </div>
+
+                  <!-- Deteksi ISBN -->
+                  <div class="md-item">
+                    <div class="md-label">Deteksi ISBN</div>
+                    <div class="md-value">
+                      <span id="mdIsbnDetectionLabel">-</span>
+                    </div>
+                  </div>
+
+                  <div class="md-item">
+                    <div class="md-label">Nomor ISBN</div>
+                    <div class="md-value">
+                      <span id="mdIsbnNumbers">-</span>
+                    </div>
+                  </div>
+
+                  <!-- Bidang Ilmu & Reviewer -->
+                  <div class="md-item">
+                    <div class="md-label">Bidang Ilmu</div>
+                    <div class="md-value">
+                      <span id="mdField">-</span>
+                    </div>
+                  </div>
+
+                  <div class="md-item">
+                    <div class="md-label">Reviewer Simulasi</div>
+                    <div class="md-value">
+                      <span id="mdReviewerName">-</span>
+                    </div>
+                  </div>
+
+                  <div class="md-item">
+                    <div class="md-label">Keahlian Reviewer</div>
+                    <div class="md-value">
+                      <span id="mdReviewerExpertise">-</span>
+                    </div>
+                  </div>
+
+                  <div class="md-item md-full">
+                    <div class="md-label">Catatan Reviewer</div>
+                    <div class="md-value">
+                      <p id="mdReviewerNote">-</p>
+                    </div>
+                  </div>
+
+                  <!-- Catatan AI -->
                   <div class="md-item md-full">
                     <div class="md-label">Ringkasan Naskah</div>
                     <div class="md-value">
@@ -290,7 +395,6 @@
                     </div>
                   </div>
 
-                  <!-- Initial Quality Notes -->
                   <div class="md-item md-full">
                     <div class="md-label">Catatan Kualitas Awal</div>
                     <div class="md-value">
@@ -298,7 +402,6 @@
                     </div>
                   </div>
 
-                  <!-- Reviewer Focus -->
                   <div class="md-item md-full">
                     <div class="md-label">Fokus Reviewer</div>
                     <div class="md-value">
@@ -306,7 +409,6 @@
                     </div>
                   </div>
 
-                  <!-- Initial Issues -->
                   <div class="md-item md-full">
                     <div class="md-label">Masalah Awal</div>
                     <div class="md-value">
@@ -314,11 +416,24 @@
                     </div>
                   </div>
 
-                  <!-- Temporary Recommendation -->
                   <div class="md-item md-full">
-                    <div class="md-label">Recommendation Sementara</div>
+                    <div class="md-label">Rekomendasi Sementara</div>
                     <div class="md-value">
                       <p id="mdTemporaryRecommendation">-</p>
+                    </div>
+                  </div>
+
+                  <!-- <div class="md-item md-full">
+                    <div class="md-label">Checklist Evaluasi</div>
+                    <div class="md-value">
+                      <div id="mdChecklistEvaluation">-</div>
+                    </div>
+                  </div> -->
+
+                  <div class="md-item md-full">
+                    <div class="md-label">Error AI</div>
+                    <div class="md-value">
+                      <p id="mdAiError">-</p>
                     </div>
                   </div>
                 </div>
